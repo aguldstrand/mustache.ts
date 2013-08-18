@@ -1,15 +1,31 @@
 ﻿<!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>TypeScript HTML App</title>
+    <title>Mustache.ts</title>
     <link rel="stylesheet" href="app.css" type="text/css" />
-    <script src="app.js"></script>
 </head>
 <body>
-    <h1>TypeScript HTML App</h1>
-
-    <div id="content"></div>
+    <table>
+        <thead>
+            <tr>
+                <td>Name</td>
+                <td>Expected</td>
+                <td>Actual</td>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>Name</td>
+                <td>Expected</td>
+                <td>Actual</td>
+            </tr>
+        </tfoot>
+    </table>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="mustache.js"></script>
+    <script src="testRunner.js"></script>
 </body>
-</html>
+<//html>

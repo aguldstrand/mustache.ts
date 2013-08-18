@@ -7,8 +7,10 @@ var Mustache;
         };
     }
     Mustache.compile = compile;
-})(Mustache || (Mustache = {}));
 
-function runTest(testData) {
-}
-//# sourceMappingURL=app.js.map
+    function template(name, data) {
+        return null;
+    }
+    Mustache.template = template;
+})(Mustache || (Mustache = {}));
+//# sourceMappingURL=mustache.js.map
