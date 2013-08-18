@@ -5,7 +5,7 @@ module TestRunner {
         Mustache.compile(testData.name, testData.template);
         var actual = Mustache.template(testData.name, testData.data);
 
-        document.getElementById("table-body").innerHTML += "<tr class=\"" + (actual === testData.expected ? 'success' : 'fail') + "\"><td>" + testData.name + "</td><td><pre>" + testData.expected + "</pre></td><td><pre>" + actual + "</pre></td></tr>";
+        document.getElementById("table-body").innerHTML += "<tr class=\"" + (actual === testData.expected ? 'success' : 'fail') + "\"><td>" + testData.name + "</td><td><pre>" + testData.template + "</pre></td><td><pre>" + testData.expected + "</pre></td><td><pre>" + actual + "</pre></td></tr>";
     }
 
     $.getJSON('/externals/mustache-spec/specs/sections.json', function (data) {
