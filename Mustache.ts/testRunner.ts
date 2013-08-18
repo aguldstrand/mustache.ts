@@ -2,8 +2,13 @@ declare var $;
 module TestRunner {
     function runTest(testData) {
 
-        Mustache.compile(testData.name, testData.template);
-        var actual = Mustache.template(testData.name, testData.data);
+        var actual;
+        try {
+            Mustache.compile(testData.name, testData.template);
+            actual = Mustache.template(testData.name, testData.data);
+        } catch (ex) {
+            actual = "Exception: " + ex;
+        }
 
         document.getElementById("table-body").innerHTML += "<tr class=\"" + (actual === testData.expected ? 'success' : 'fail') + "\"><td>" + testData.name + "</td><td><pre>" + testData.template + "</pre></td><td><pre>" + testData.expected + "</pre></td><td><pre>" + actual + "</pre></td></tr>";
     }

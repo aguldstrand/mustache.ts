@@ -1,6 +1,54 @@
 var Mustache;
 (function (Mustache) {
     var templates = {};
+    var plugins = {};
+
+    function getParamValue(name, data) {
+        var val = data[name];
+        if (val) {
+            return val;
+        }
+
+        for (var key in data) {
+            if (data.hasOwnProperty(key)) {
+                if (val = getParamValue(name, data[key])) {
+                    return val;
+                }
+            }
+        }
+    }
+
+    plugins['value'] = function valuePlugin(stackBlock, data) {
+        return getParamValue(stackBlock.params, data);
+    };
+
+    plugins['standard-iterator'] = function standardIteratorPlugin(stackBlock, data) {
+        var innerData = getParamValue(stackBlock.params, data);
+        if (!innerData) {
+            return "";
+        }
+
+        // Boolean
+        var innerDataType = typeof (innerData);
+        if (innerDataType === 'boolean') {
+            return innerTemplate(stackBlock.blocks, data);
+        }
+
+        if (innerData instanceof Array) {
+            var outp = "";
+            var len = innerData.length;
+            for (var i = 0; i < len; i++) {
+                outp += innerTemplate(stackBlock.blocks, innerData[i]);
+            }
+            return outp;
+        }
+
+        if (innerDataType === 'object') {
+            return innerTemplate(stackBlock.blocks, innerData);
+        }
+
+        throw "not supported value type";
+    };
 
     function findInstruction(i, template) {
         var startPos = template.indexOf("{{", i);
@@ -38,7 +86,7 @@ var Mustache;
             var instruction = findInstruction(i, template);
             if (instruction) {
                 var first = { type: 'text', value: template.substring(i, instruction.start) };
-                queued = { type: instruction.text[2] === '/' ? 'close' : 'open', value: instruction.text };
+                queued = { type: 'block', value: instruction.text };
 
                 i = instruction.start + instruction.text.length;
 
@@ -52,23 +100,38 @@ var Mustache;
 
     function getBlockStack(getNextBlock) {
         var localBlocks = [];
+
         var block;
-
         while (block = getNextBlock()) {
-            var block = blocks[i];
-
             switch (block.type) {
                 case 'text':
-                    localBlocks.push(block);
+                    localBlocks.push(block.value);
                     break;
 
-                case 'open':
-                    break;
+                case 'block':
+                    if (block.value[2] === '/') {
+                        return localBlocks;
+                    }
 
-                case 'close':
+                    if (block.value[2] === '#') {
+                        localBlocks.push({
+                            plugin: 'standard-iterator',
+                            params: block.value.match(/^{{#(.+)}}$/)[1],
+                            blocks: getBlockStack(getNextBlock)
+                        });
+                    } else {
+                        var match = block.value.match(/^{{(.+)}}$/);
+                        localBlocks.push({
+                            plugin: 'value',
+                            params: match[1],
+                            blocks: null
+                        });
+                    }
                     break;
             }
         }
+
+        return localBlocks;
     }
 
     function compile(name, template) {
@@ -81,8 +144,24 @@ var Mustache;
     }
     Mustache.compile = compile;
 
+    function innerTemplate(blocks, data) {
+        var outp = "";
+
+        var len = blocks.length;
+        for (var i = 0; i < len; i++) {
+            var block = blocks[i];
+            if (typeof (block) === 'string') {
+                outp += blocks[i];
+            } else {
+                outp += plugins[block.plugin](block, data);
+            }
+        }
+
+        return outp;
+    }
+
     function template(name, data) {
-        return null;
+        return innerTemplate(templates[name], data);
     }
     Mustache.template = template;
 })(Mustache || (Mustache = {}));
