@@ -1,5 +1,5 @@
 module Mustache {
-    var templates: {};
+    var templates = {};
 
     export function compile(name: string, template: string) {
         templates[name] = function () {

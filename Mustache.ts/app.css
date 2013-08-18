@@ -3,6 +3,10 @@
     font-family: 'Segoe UI', sans-serif
 }
 
-span {
-    font-style: italic
+.success {
+    background: rgb(37, 156, 2);
+}
+
+.fail {
+    background: rgb(255, 0, 0);
 }

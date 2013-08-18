@@ -1,6 +1,6 @@
 var Mustache;
 (function (Mustache) {
-    var templates;
+    var templates = {};
 
     function compile(name, template) {
         templates[name] = function () {
