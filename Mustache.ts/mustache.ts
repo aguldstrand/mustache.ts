@@ -116,6 +116,14 @@ module Mustache {
         var i = 0;
         var done = false;
 
+        function trimnl(val:string) {
+            var i = 0;
+            while (i < val.length && (val[i]==='\n' || val[i]==='\r')) {
+                i++;
+            }
+            return val.substring(i);
+        }
+
         return function getNextToken(): Block {
 
             if (done) {
@@ -144,11 +152,9 @@ module Mustache {
 
             if (last &&
                 last.type === 'block' &&
-                (last.value[2] === '#' || last.value[2] === '/') &&
-                (outp.value === '\n' || outp.value === '\r' || outp.value === '\r\n' || outp.value === '\n\r')) {
-                outp = getNextToken();
-            } else {
-                last = outp;
+                outp.type === 'text' &&
+                (last.value[2] === '#' || last.value[2] === '/')) {
+                    outp.value = trimnl(outp.value);
             }
 
             return last = outp;

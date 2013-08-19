@@ -96,6 +96,14 @@ var Mustache;
         var i = 0;
         var done = false;
 
+        function trimnl(val) {
+            var i = 0;
+            while (i < val.length && (val[i] === '\n' || val[i] === '\r')) {
+                i++;
+            }
+            return val.substring(i);
+        }
+
         return function getNextToken() {
             if (done) {
                 return null;
@@ -120,10 +128,8 @@ var Mustache;
                 outp = { type: 'text', value: template.substring(i, template.length) };
             }
 
-            if (last && last.type === 'block' && (last.value[2] === '#' || last.value[2] === '/') && (outp.value === '\n' || outp.value === '\r' || outp.value === '\r\n' || outp.value === '\n\r')) {
-                outp = getNextToken();
-            } else {
-                last = outp;
+            if (last && last.type === 'block' && outp.type === 'text' && (last.value[2] === '#' || last.value[2] === '/')) {
+                outp.value = trimnl(outp.value);
             }
 
             return last = outp;
