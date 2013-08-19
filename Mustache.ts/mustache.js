@@ -3,19 +3,6 @@ var Mustache;
     var templates = {};
     var plugins = {};
 
-    function getParamValue(name, data) {
-        var val = data.value[name];
-        if (val) {
-            return val;
-        }
-
-        if (data.parent) {
-            return getParamValue(name, data.parent);
-        }
-
-        return null;
-    }
-
     plugins['value'] = function valuePlugin(stackBlock, data) {
         return getParamValue(stackBlock.params, data);
     };
@@ -54,6 +41,37 @@ var Mustache;
         throw "not supported value type";
     };
 
+    function getParamValue(name, data) {
+        if (name === '.') {
+            return data.value;
+        }
+
+        var pieces = name.split('.');
+        if (pieces.length === 1) {
+            for (var frame = data; frame; frame = frame.parent) {
+                var val = frame.value[name];
+                if (val) {
+                    return val;
+                }
+            }
+            return null;
+        } else {
+            var value = data.value;
+            var len = pieces.length;
+            for (var i = 0; i < len; i++) {
+                value = getParamValue(pieces[i], {
+                    parent: null,
+                    value: value
+                });
+
+                if (!value) {
+                    return null;
+                }
+            }
+            return value;
+        }
+    }
+
     function findInstruction(i, template) {
         var startPos = template.indexOf("{{", i);
         if (startPos === -1) {
@@ -72,33 +90,43 @@ var Mustache;
     }
 
     function getTokenizer(template) {
-        var i = 0;
+        var last;
         var queued;
+
+        var i = 0;
         var done = false;
 
-        return function () {
+        return function getNextToken() {
             if (done) {
                 return null;
             }
 
             if (queued) {
-                var t = queued;
+                var temp = queued;
                 queued = null;
-                return t;
+                last = temp;
+                return temp;
             }
 
             var instruction = findInstruction(i, template);
+            var outp;
             if (instruction) {
-                var first = { type: 'text', value: template.substring(i, instruction.start) };
+                outp = { type: 'text', value: template.substring(i, instruction.start) };
                 queued = { type: 'block', value: instruction.text };
 
                 i = instruction.start + instruction.text.length;
-
-                return first;
             } else {
                 done = true;
-                return { type: 'text', value: template.substring(i, template.length) };
+                outp = { type: 'text', value: template.substring(i, template.length) };
             }
+
+            if (last && last.type === 'block' && (last.value[2] === '#' || last.value[2] === '/') && (outp.value === '\n' || outp.value === '\r' || outp.value === '\r\n' || outp.value === '\n\r')) {
+                outp = getNextToken();
+            } else {
+                last = outp;
+            }
+
+            return last = outp;
         };
     }
 
