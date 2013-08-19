@@ -4,18 +4,16 @@ var Mustache;
     var plugins = {};
 
     function getParamValue(name, data) {
-        var val = data[name];
+        var val = data.value[name];
         if (val) {
             return val;
         }
 
-        for (var key in data) {
-            if (data.hasOwnProperty(key)) {
-                if (val = getParamValue(name, data[key])) {
-                    return val;
-                }
-            }
+        if (data.parent) {
+            return getParamValue(name, data.parent);
         }
+
+        return null;
     }
 
     plugins['value'] = function valuePlugin(stackBlock, data) {
@@ -38,13 +36,19 @@ var Mustache;
             var outp = "";
             var len = innerData.length;
             for (var i = 0; i < len; i++) {
-                outp += innerTemplate(stackBlock.blocks, innerData[i]);
+                outp += innerTemplate(stackBlock.blocks, {
+                    parent: data,
+                    value: innerData[i]
+                });
             }
             return outp;
         }
 
         if (innerDataType === 'object') {
-            return innerTemplate(stackBlock.blocks, innerData);
+            return innerTemplate(stackBlock.blocks, {
+                parent: data,
+                value: innerData
+            });
         }
 
         throw "not supported value type";
@@ -161,7 +165,10 @@ var Mustache;
     }
 
     function template(name, data) {
-        return innerTemplate(templates[name], data);
+        return innerTemplate(templates[name], {
+            parent: null,
+            value: data
+        });
     }
     Mustache.template = template;
 })(Mustache || (Mustache = {}));

@@ -2,26 +2,29 @@ module Mustache {
     var templates = {};
     var plugins = {};
 
-    function getParamValue(name: string, data: any) {
-        var val = data[name];
+    interface IDataStackFrame {
+        parent: IDataStackFrame;
+        value: any;
+    }
+
+    function getParamValue(name: string, data: IDataStackFrame) {
+        var val = data.value[name];
         if (val) {
             return val;
         }
 
-        for (var key in data) {
-            if (data.hasOwnProperty(key)) {
-                if (val = getParamValue(name, data[key])) {
-                    return val;
-                }
-            }
+        if (data.parent) {
+            return getParamValue(name, data.parent);
         }
+
+        return null;
     }
 
-    plugins['value'] = function valuePlugin(stackBlock: StackBlock, data: any) {
+    plugins['value'] = function valuePlugin(stackBlock: StackBlock, data: IDataStackFrame) {
         return getParamValue(stackBlock.params, data);
     };
 
-    plugins['standard-iterator'] = function standardIteratorPlugin(stackBlock: StackBlock, data: any) {
+    plugins['standard-iterator'] = function standardIteratorPlugin(stackBlock: StackBlock, data: IDataStackFrame) {
         var innerData = getParamValue(stackBlock.params, data);
         if (!innerData) {
             return "";
@@ -38,13 +41,19 @@ module Mustache {
             var outp = "";
             var len = innerData.length;
             for (var i = 0; i < len; i++) {
-                outp += innerTemplate(stackBlock.blocks, innerData[i]);
+                outp += innerTemplate(stackBlock.blocks, {
+                    parent: data,
+                    value: innerData[i]
+                });
             }
             return outp;
         }
 
         if (innerDataType === 'object') {
-            return innerTemplate(stackBlock.blocks, innerData);
+            return innerTemplate(stackBlock.blocks, {
+                parent: data,
+                value: innerData
+            });
         }
 
         throw "not supported value type";
@@ -159,7 +168,7 @@ module Mustache {
         templates[name] = getBlockStack(getNextToken);
     }
 
-    function innerTemplate(blocks: any[], data: any) {
+    function innerTemplate(blocks: any[], data: IDataStackFrame) {
         var outp = "";
 
         var len = blocks.length;
@@ -176,6 +185,9 @@ module Mustache {
     }
 
     export function template(name: string, data: any): string {
-        return innerTemplate(templates[name], data);
+        return innerTemplate(templates[name], {
+            parent: null,
+            value: data
+        });
     }
 }
