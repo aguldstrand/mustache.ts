@@ -10,7 +10,7 @@ module Mustache {
             throw err;
         }
 
-        var outp = JSON.stringify(Mustache.compile(data), null, -1);
+        var outp = JSON.stringify(Mustache.getBlocks(data), null, -1);
         console.log(outp);
     });
 

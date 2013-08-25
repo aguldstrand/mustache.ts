@@ -105,7 +105,7 @@ var Mustache;
         return localBlocks;
     }
 
-    function compile(template) {
+    function getBlocks(template) {
         var blocks = [];
 
         // Tokensize
@@ -113,6 +113,6 @@ var Mustache;
 
         return getBlockStack(getNextToken);
     }
-    Mustache.compile = compile;
+    Mustache.getBlocks = getBlocks;
 })(Mustache || (Mustache = {}));
 //# sourceMappingURL=compiler.js.map

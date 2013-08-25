@@ -105,7 +105,7 @@ var Mustache;
         return localBlocks;
     }
 
-    function compile(template) {
+    function getBlocks(template) {
         var blocks = [];
 
         // Tokensize
@@ -113,7 +113,7 @@ var Mustache;
 
         return getBlockStack(getNextToken);
     }
-    Mustache.compile = compile;
+    Mustache.getBlocks = getBlocks;
 })(Mustache || (Mustache = {}));
 ///<Reference path="compiler.ts" />
 ///<Reference path="node.d.ts" />
@@ -127,7 +127,7 @@ var Mustache;
             throw err;
         }
 
-        var outp = JSON.stringify(Mustache.compile(data), null, -1);
+        var outp = JSON.stringify(Mustache.getBlocks(data), null, -1);
         console.log(outp);
     });
 })(Mustache || (Mustache = {}));

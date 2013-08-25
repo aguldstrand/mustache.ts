@@ -4,8 +4,8 @@ module TestRunner {
 
         var actual;
         try {
-            Mustache.register(testData.name, testData.template);
-            actual = Mustache.template(testData.name, testData.data);
+            var template = Mustache.compile(testData.template);
+            actual = template(testData.data);
         } catch (ex) {
             actual = "Exception: " + ex;
         }

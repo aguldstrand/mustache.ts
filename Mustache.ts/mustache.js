@@ -105,7 +105,7 @@ var Mustache;
         return localBlocks;
     }
 
-    function compile(template) {
+    function getBlocks(template) {
         var blocks = [];
 
         // Tokensize
@@ -113,7 +113,7 @@ var Mustache;
 
         return getBlockStack(getNextToken);
     }
-    Mustache.compile = compile;
+    Mustache.getBlocks = getBlocks;
 })(Mustache || (Mustache = {}));
 ///<Reference path="compiler.ts" />
 var Mustache;
@@ -206,20 +206,11 @@ var Mustache;
         return outp;
     }
 
-    function register(name, template) {
-        if (typeof (template) === 'string') {
-            templates[name] = Mustache.compile(template);
-        } else {
-            templates[name] = template;
-        }
+    function compile(template) {
+        var blocks = Mustache.getBlocks(template);
+        return function (data) {
+            return innerTemplate(blocks, { value: data });
+        };
     }
-    Mustache.register = register;
-
-    function template(name, data) {
-        return innerTemplate(templates[name], {
-            parent: null,
-            value: data
-        });
-    }
-    Mustache.template = template;
+    Mustache.compile = compile;
 })(Mustache || (Mustache = {}));

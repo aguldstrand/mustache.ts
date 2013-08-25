@@ -4,7 +4,7 @@ module Mustache {
     var plugins = {};
 
     interface IDataStackFrame {
-        parent: IDataStackFrame;
+        parent?: IDataStackFrame;
         value: any;
     }
 
@@ -104,20 +104,8 @@ module Mustache {
         return outp;
     }
 
-    export function register(name: string, template: any) {
-
-        if (typeof (template) === 'string') {
-            templates[name] = Mustache.compile(template);
-        } else {
-            templates[name] = template;
-        }
-
-    }
-
-    export function template(name: string, data: any): string {
-        return innerTemplate(templates[name], {
-            parent: null,
-            value: data
-        });
+    export function compile(template: any) {
+        var blocks = Mustache.getBlocks(template);
+        return data => innerTemplate(blocks, { value: data });
     }
 }

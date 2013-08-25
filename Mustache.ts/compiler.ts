@@ -116,7 +116,7 @@ module Mustache {
         return localBlocks;
     }
 
-    export function compile(template: string) {
+    export function getBlocks(template: string) {
 
         var blocks: Block[] = [];
 
