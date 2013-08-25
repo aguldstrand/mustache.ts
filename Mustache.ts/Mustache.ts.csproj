@@ -18,6 +18,9 @@
   <ItemGroup>
     <Content Include="app.css" />
     <Content Include="default.htm" />
+    <TypeScriptCompile Include="compiler.ts" />
+    <TypeScriptCompile Include="mc.ts" />
+    <TypeScriptCompile Include="node.d.ts" />
     <TypeScriptCompile Include="testRunner.ts" />
     <Content Include="testRunner.js">
       <DependentUpon>testRunner.ts</DependentUpon>
@@ -28,6 +31,7 @@
     <TypeScriptCompile Include="mustache.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="templates\test1.tpl" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
@@ -75,4 +79,8 @@
     <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>tsc $(ProjectDir)mc.ts -out $(ProjectDir)mc.js
+tsc $(ProjectDir)mustache.ts -out $(ProjectDir)mustache.js</PostBuildEvent>
+  </PropertyGroup>
 </Project>

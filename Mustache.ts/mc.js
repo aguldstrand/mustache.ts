@@ -116,110 +116,18 @@ var Mustache;
     Mustache.compile = compile;
 })(Mustache || (Mustache = {}));
 ///<Reference path="compiler.ts" />
+///<Reference path="node.d.ts" />
 var Mustache;
 (function (Mustache) {
-    var templates = {};
-    var plugins = {};
+    var fs = require('fs');
 
-    plugins['value'] = function valuePlugin(stackBlock, data) {
-        return getParamValue(stackBlock.params, data);
-    };
-
-    plugins['standard-iterator'] = function standardIteratorPlugin(stackBlock, data) {
-        var innerData = getParamValue(stackBlock.params, data);
-        if (!innerData) {
-            return "";
+    var templatePath = process.argv[2];
+    fs.readFile(templatePath, { encoding: 'utf-8' }, function (err, data) {
+        if (err) {
+            throw err;
         }
 
-        // Boolean
-        var innerDataType = typeof (innerData);
-        if (innerDataType === 'boolean') {
-            return innerTemplate(stackBlock.blocks, data);
-        }
-
-        if (innerData instanceof Array) {
-            var outp = "";
-            var len = innerData.length;
-            for (var i = 0; i < len; i++) {
-                outp += innerTemplate(stackBlock.blocks, {
-                    parent: data,
-                    value: innerData[i]
-                });
-            }
-            return outp;
-        }
-
-        if (innerDataType === 'object') {
-            return innerTemplate(stackBlock.blocks, {
-                parent: data,
-                value: innerData
-            });
-        }
-
-        throw "not supported value type";
-    };
-
-    function getParamValue(name, data) {
-        if (name === '.') {
-            return data.value;
-        }
-
-        var pieces = name.split('.');
-        if (pieces.length === 1) {
-            for (var frame = data; frame; frame = frame.parent) {
-                var val = frame.value[name];
-                if (val) {
-                    return val;
-                }
-            }
-            return null;
-        } else {
-            var value = data.value;
-            var len = pieces.length;
-            for (var i = 0; i < len; i++) {
-                value = getParamValue(pieces[i], {
-                    parent: null,
-                    value: value
-                });
-
-                if (!value) {
-                    return null;
-                }
-            }
-            return value;
-        }
-    }
-
-    function innerTemplate(blocks, data) {
-        var outp = "";
-
-        var len = blocks.length;
-        for (var i = 0; i < len; i++) {
-            var block = blocks[i];
-            if (typeof (block) === 'string') {
-                outp += blocks[i];
-            } else {
-                outp += plugins[block.plugin](block, data);
-            }
-        }
-
-        return outp;
-    }
-
-    function register(name, template) {
-        if (typeof (template) === 'string') {
-            templates[name] = Mustache.compile(template);
-        } else {
-            templates[name] = template;
-        }
-    }
-    Mustache.register = register;
-
-    function template(name, data) {
-        return innerTemplate(templates[name], {
-            parent: null,
-            value: data
-        });
-    }
-    Mustache.template = template;
+        var outp = JSON.stringify(Mustache.compile(data), null, -1);
+        console.log(outp);
+    });
 })(Mustache || (Mustache = {}));

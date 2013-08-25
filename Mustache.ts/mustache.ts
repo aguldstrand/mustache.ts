@@ -1,3 +1,4 @@
+///<Reference path="compiler.ts" />
 module Mustache {
     var templates = {};
     var plugins = {};
@@ -81,131 +82,10 @@ module Mustache {
         }
     }
 
-    interface Block {
-        type: string;
-        value: string;
-    }
-
     interface StackBlock {
         plugin: string;
         params: string;
         blocks: any[];
-    }
-
-    function findInstruction(i: number, template: string) {
-        var startPos = template.indexOf("{{", i);
-        if (startPos === -1) {
-            return null;
-        }
-
-        var endPos = template.indexOf("}}", startPos);
-        if (endPos === -1) {
-            return null;
-        }
-
-        return {
-            start: startPos,
-            text: template.substring(startPos, endPos + 2)
-        };
-    }
-
-    function getTokenizer(template: string) {
-        var last: Block;
-        var queued: Block;
-
-        var i = 0;
-        var done = false;
-
-        function trimnl(val:string) {
-            var i = 0;
-            while (i < val.length && (val[i]==='\n' || val[i]==='\r')) {
-                i++;
-            }
-            return val.substring(i);
-        }
-
-        return function getNextToken(): Block {
-
-            if (done) {
-                return null;
-            }
-
-            if (queued) {
-                var temp = queued;
-                queued = null;
-                last = temp;
-                return temp;
-            }
-
-            var instruction = findInstruction(i, template);
-            var outp: Block;
-            if (instruction) {
-
-                outp = { type: 'text', value: template.substring(i, instruction.start) };
-                queued = { type: 'block', value: instruction.text };
-
-                i = instruction.start + instruction.text.length;
-            } else {
-                done = true;
-                outp = { type: 'text', value: template.substring(i, template.length) };
-            }
-
-            if (last &&
-                last.type === 'block' &&
-                outp.type === 'text' &&
-                (last.value[2] === '#' || last.value[2] === '/')) {
-                    outp.value = trimnl(outp.value);
-            }
-
-            return last = outp;
-        };
-    }
-
-    function getBlockStack(getNextBlock: () => Block) {
-
-        var localBlocks = [];
-
-        var block: Block;
-        while (block = getNextBlock()) {
-            switch (block.type) {
-                case 'text':
-                    localBlocks.push(block.value);
-                    break;
-
-                case 'block':
-                    if (block.value[2] === '/') {
-                        return localBlocks;
-                    }
-
-                    if (block.value[2] === '#') {
-                        localBlocks.push({
-                            plugin: 'standard-iterator',
-                            params: block.value.match(/^{{#(.+)}}$/)[1],
-                            blocks: getBlockStack(getNextBlock),
-                        });
-                    } else {
-                        var match = block.value.match(/^{{(.+)}}$/);
-                        localBlocks.push({
-                            plugin: 'value',
-                            params: match[1],
-                            blocks: null,
-                        });
-                    }
-                    break;
-            }
-        }
-
-        return localBlocks;
-    }
-
-    export function compile(name: string, template: string) {
-
-        var blocks: Block[] = [];
-
-        // Tokensize
-        var getNextToken = getTokenizer(template);
-
-        templates[name] = getBlockStack(getNextToken);
     }
 
     function innerTemplate(blocks: any[], data: IDataStackFrame) {
@@ -222,6 +102,16 @@ module Mustache {
         }
 
         return outp;
+    }
+
+    export function register(name: string, template: any) {
+
+        if (typeof (template) === 'string') {
+            templates[name] = Mustache.compile(template);
+        } else {
+            templates[name] = template;
+        }
+
     }
 
     export function template(name: string, data: any): string {
