@@ -38,7 +38,7 @@ function makeSectionFunction(ctx: CompileContext, tokens: IterableIterator<Token
 
         switch (token.type) {
             case TokenType.Text:
-                outp += token.value.replace(/'/g, "\\'").replace(/\n/g, '\\n')
+                outp += token.value.replace(/`/g, "\\`").replace(/\n/g, '\\n')
                 break
 
             case TokenType.Block:
