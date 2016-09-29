@@ -2,21 +2,22 @@ import {enumerateTokens, Token, TokenType} from "./tokenizer"
 
 interface CompileContext {
     functionNameGenerator: { (): string },
-    functions: string[],
+    functions: { [fn: string]: string },
 }
 
 export function compile(template: string) {
     const tokens = enumerateTokens(template)
 
     var ctx: CompileContext = {
-        functionNameGenerator: nameGenerator('fn_'),
-        functions: [],
+        functionNameGenerator: nameGenerator('f'),
+        functions: {},
     }
 
-    let name = makeSectionFunction(ctx, tokens);
+    const name = makeSectionFunction(ctx, tokens)
 
-    return ctx.functions.join('\n') +
-        `\nreturn ${name}(d)`
+    return 'l=(d,f)=>Array.isArray(d)?d.map(f).join(""):f(d)\n' +
+        `${Object.getOwnPropertyNames(ctx.functions).map(fn => `${ctx.functions[fn]}=${fn}`).join('\n')}\n` +
+        `return ${name}(d)`
 }
 
 function nameGenerator(prefix: string) {
@@ -28,8 +29,7 @@ function nameGenerator(prefix: string) {
 
 function makeSectionFunction(ctx: CompileContext, tokens: IterableIterator<Token>) {
 
-    let name = ctx.functionNameGenerator()
-    let outp = `function ${name}(d){return `
+    let outp = `(d)=>\``
 
     let result: IteratorResult<Token>
     while (!(result = tokens.next()).done) {
@@ -38,32 +38,32 @@ function makeSectionFunction(ctx: CompileContext, tokens: IterableIterator<Token
 
         switch (token.type) {
             case TokenType.Text:
-                outp += '"' + token.value.replace(/"/g, '\\"').replace(/\n/g, '\\n') + '"+'
+                outp += token.value.replace(/'/g, "\\'").replace(/\n/g, '\\n')
                 break
 
             case TokenType.Block:
-                outp += combineContext('d', token.value) + '+'
+                outp += '${' + combineContext('d', token.value) + '}'
                 break
 
             case TokenType.EnterBlock:
                 let innerName = makeSectionFunction(ctx, tokens)
                 const newContext = combineContext('d', token.value)
-                outp += `(Array.isArray(${newContext})?${newContext}.map(${innerName}).join(""):${innerName}(${newContext}))+`
+                outp += `$\{l(${newContext},${innerName})}`
                 break
 
             case TokenType.ExitBlock:
-                outp = outp.substr(0, outp.length - 1)
-                outp += `}`
-                ctx.functions.push(outp)
+                outp += `\``
 
+                const name = ctx.functions[outp] || ctx.functionNameGenerator()
+                ctx.functions[outp] = name
                 return name
         }
     }
 
-    outp = outp.substr(0, outp.length - 1)
-    outp += `}`
-    ctx.functions.push(outp)
+    outp += `\``
 
+    const name = ctx.functions[outp] || ctx.functionNameGenerator()
+    ctx.functions[outp] = name
     return name
 }
 
@@ -72,5 +72,5 @@ function combineContext(root: string, path: string) {
         return root
     }
 
-    return root + path.split('.').map(p => `["${p.replace(/"/g, '\\"')}"]`).join("")
+    return root + path.split('.').map(p => `.${p.replace(/"/g, '\\"')}`).join("")
 }

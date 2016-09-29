@@ -13,8 +13,6 @@ export function* enumerateTokens(template: string) {
                     params.push(match[i].trim())
                 }
 
-                console.error(JSON.stringify(item))
-
             } else if (item.value[0] === '/') {
                 item.value = item.value.substr(1)
                 item.type = TokenType.ExitBlock
