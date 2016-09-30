@@ -5,7 +5,7 @@ export function* enumerateTokens(template: string): IterableIterator<Token> {
         if (item.type === TokenType.Block) {
 
             var match = item.value.split(' ')
-            console.log(match)
+            //console.log(match)
             for (var i = 1; i < match.length; i++) {
                 item.params.push(match[i].trim())
             }

@@ -45,10 +45,14 @@ const scenarios = [/*{
             articles: [9, 8, 7]
         },
         result: '\n9\n8\n7\n---\n9\n8\n7'
-    }, */{
+    }, * /{
         tpl: `{{uppercase "blubb"}}`,
         data: {
         },
+        result: 'BLUBB'
+    }*/{
+        tpl: `{{.}}{{.}}{{.}}{{.}}{{.}}{{.}}{{.}}{{.}}{{.}}{{.}}{{.}}{{.}}{{.}}{{.}}{{.}}{{.}}{{.}}{{.}}{{.}}{{.}}{{.}}{{.}}{{.}}{{.}}{{.}}`,
+        data: "aaaaaaaaaaaaaaaaaaaa",
         result: 'BLUBB'
     }]
 
@@ -58,7 +62,7 @@ for (let i = 0; i < scenarios.length; i++) {
     console.log('----------------------------------------------')
     const scenario = scenarios[i]
 
-    const iterations = 1
+    const iterations = 1000
     let start = process.hrtime()
     for (let j = 0; j < iterations; j++) {
         compile(scenario.tpl)
