@@ -28,17 +28,28 @@ const scenarios = [{
     },
     result: '<article><h1>_heading_</h1><p>_intro_</p><img src="_src_" title="_title_"/><hr/><img src="_src_" title="_title_"/></article><article><h1>_heading_</h1><p>_intro_</p><img src="_src_" title="_title_"/><hr/><img src="_src_" title="_title_"/></article><article><h1>_heading_</h1><p>_intro_</p><img src="_src_" title="_title_"/><hr/><img src="_src_" title="_title_"/></article>'
 }, {
-        tpl: `{{#articles}}{{.}}{{/articles}}---{{#articles}}{{.}}{{/articles}}`,
+        tpl: `{{#articles}}{{.}}\n{{/articles}}---\n{{#articles}}{{.}}\n{{/articles}}`,
         data: {
             articles: [9, 8, 7]
         },
-        result: '987---987'
+        result: '\n9\n8\n7\n---\n9\n8\n7'
     }, {
         tpl: '{{#articles}}{{.}}{{/articles}}`{{#articles}}{{.}}{{/articles}}',
         data: {
             articles: [9, 8, 7]
         },
         result: '987`987'
+    }, {
+        tpl: `{{#articles}}{{.}}\n{{/articles}}---\n{{#articles}}{{.}}\n{{/articles}}`,
+        data: {
+            articles: [9, 8, 7]
+        },
+        result: '\n9\n8\n7\n---\n9\n8\n7'
+    }, {
+        tpl: `{{uppercase "blubb"}}`,
+        data: {
+        },
+        result: 'BLUBB'
     }]
 
 declare const process: any
@@ -70,6 +81,7 @@ for (let i = 0; i < scenarios.length; i++) {
 
     if (result !== scenario.result) {
         console.error('invalid template output     <--------')
+        console.error(scenario.tpl)
         console.error()
         console.error('actual', result)
         console.error('expect', scenario.result)

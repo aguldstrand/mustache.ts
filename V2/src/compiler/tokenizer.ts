@@ -1,16 +1,18 @@
-export function* enumerateTokens(template: string) {
+export function* enumerateTokens(template: string): IterableIterator<Token> {
+    // template = template.replace(/\n/g, '|')
     for (let item of enumerateTokensInner(template)) {
         item.value = item.value.trim()
         if (item.type === TokenType.Block) {
             if (item.value[0] === '#') {
                 var match = /([ ]*[#a-zA-Z0-9_\-./]+)*/.exec(item.value)
 
+                console.log(match)
+
                 item.value = match[0].substr(1).trim()
                 item.type = TokenType.EnterBlock
 
-                const params: string[] = (<HelperToken>item).params = []
                 for (var i = 1; i < match.length; i++) {
-                    params.push(match[i].trim())
+                    item.params.push(match[i].trim())
                 }
 
             } else if (item.value[0] === '/') {
@@ -23,7 +25,7 @@ export function* enumerateTokens(template: string) {
     }
 }
 
-function* enumerateTokensInner(template: string) {
+function* enumerateTokensInner(template: string): IterableIterator<Token> {
     let index = 0
 
     while (true) {
@@ -36,7 +38,8 @@ function* enumerateTokensInner(template: string) {
             if (val1.length) {
                 yield {
                     value: val1,
-                    type: TokenType.Text
+                    type: TokenType.Text,
+                    params: []
                 }
             }
             break
@@ -47,7 +50,8 @@ function* enumerateTokensInner(template: string) {
         if (val2.length) {
             yield {
                 value: val2,
-                type: TokenType.Text
+                type: TokenType.Text,
+                params: []
             }
         }
 
@@ -59,7 +63,8 @@ function* enumerateTokensInner(template: string) {
         if (val3.length) {
             yield {
                 value: val3,
-                type: TokenType.Block
+                type: TokenType.Block,
+                params: []
             }
         }
 
@@ -70,9 +75,6 @@ function* enumerateTokensInner(template: string) {
 export interface Token {
     value: string
     type: TokenType
-}
-
-export interface HelperToken extends Token {
     params: string[]
 }
 
