@@ -3,16 +3,18 @@ export function* enumerateTokens(template: string): IterableIterator<Token> {
     for (let item of enumerateTokensInner(template)) {
         item.value = item.value.trim()
         if (item.type === TokenType.Block) {
-            if (item.value[0] === '#') {
-                var match = /([ ]*[#a-zA-Z0-9_\-./]+)*/.exec(item.value)
 
+            var match = item.value.split(' ')
+            console.log(match)
+            for (var i = 1; i < match.length; i++) {
+                item.params.push(match[i].trim())
+            }
+
+
+
+            if (item.value[0] === '#') {
                 item.value = match[0].substr(1).trim()
                 item.type = TokenType.EnterBlock
-
-                for (var i = 1; i < match.length; i++) {
-                    item.params.push(match[i].trim())
-                }
-
             } else if (item.value[0] === '/') {
                 item.value = item.value.substr(1)
                 item.type = TokenType.ExitBlock

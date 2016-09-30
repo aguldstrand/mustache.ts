@@ -1,6 +1,6 @@
 import {compile} from "./compiler/compiler"
 
-const scenarios = [{
+const scenarios = [/*{
     tpl: `{{#articles}}<article><h1>{{#heading}}{{.}}{{/heading}}</h1><p>{{intro}}</p>{{#images}}<img src="{{src}}" title="{{title}}"/>{{/images}}<hr/>{{#images}}<img src="{{src}}" title="{{title}}"/>{{/images}}</article>{{/articles}}`,
     data: {
         articles: [{
@@ -45,7 +45,7 @@ const scenarios = [{
             articles: [9, 8, 7]
         },
         result: '\n9\n8\n7\n---\n9\n8\n7'
-    }, {
+    }, */{
         tpl: `{{uppercase "blubb"}}`,
         data: {
         },
@@ -58,7 +58,7 @@ for (let i = 0; i < scenarios.length; i++) {
     console.log('----------------------------------------------')
     const scenario = scenarios[i]
 
-    const iterations = 1000
+    const iterations = 1
     let start = process.hrtime()
     for (let j = 0; j < iterations; j++) {
         compile(scenario.tpl)
