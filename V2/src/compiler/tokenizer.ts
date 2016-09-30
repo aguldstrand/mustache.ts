@@ -6,8 +6,6 @@ export function* enumerateTokens(template: string): IterableIterator<Token> {
             if (item.value[0] === '#') {
                 var match = /([ ]*[#a-zA-Z0-9_\-./]+)*/.exec(item.value)
 
-                console.log(match)
-
                 item.value = match[0].substr(1).trim()
                 item.type = TokenType.EnterBlock
 

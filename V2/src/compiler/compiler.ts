@@ -15,8 +15,8 @@ export function compile(template: string) {
 
     const name = makeSectionFunction(ctx, tokens)
 
-    return 'l=(d,f)=>Array.isArray(d)?d.map(f).join(""):f(d)\n' +
-        `${Object.getOwnPropertyNames(ctx.functions).map(fn => `${ctx.functions[fn]}=${fn}`).join('\n')}\n` +
+    return 'let l=(d,f)=>Array.isArray(d)?d.map(f).join(""):f(d)\n' +
+        `${Object.getOwnPropertyNames(ctx.functions).map(fn => `let ${ctx.functions[fn]}=${fn}`).join('\n')}\n` +
         `return ${name}(d)`
 }
 
