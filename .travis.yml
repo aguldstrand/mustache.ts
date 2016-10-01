@@ -1,4 +1,6 @@
 language: node_js
 node_js:
   - node
-script: npm build
+before_script:
+  - npm build
+script: npm test

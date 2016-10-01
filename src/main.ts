@@ -1,6 +1,6 @@
 import {compile} from "./compiler/compiler"
 import {makeTemplate, HelperMap, Frame} from "./runtime/runtime"
-import {testCases} from "./test/testCases"
+import {testCases} from "../test/testCases"
 
 declare const process: any
 
