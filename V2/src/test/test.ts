@@ -1,6 +1,11 @@
-import {compile} from "./compiler/compiler"
-import {makeTemplate, HelperMap, Frame} from "./runtime/runtime"
-import {testCases} from "./test/testCases"
+declare const require: any
+declare const describe: any
+declare const it: any
+
+
+import {compile} from "../compiler/compiler"
+import {makeTemplate, HelperMap, Frame} from "../runtime/runtime"
+import {testCases} from "../test/testCases"
 
 declare const process: any
 
@@ -22,9 +27,22 @@ const helpers: HelperMap = {
     ellipsis: (scope: Frame, args: string[]) => args[0] + '...',
 }
 
-
 for (let i = 0; i < scenarios.length; i++) {
     const scenario = scenarios[i]
+
+    var assert = require('assert');
+    describe(i + ' ' + scenario.msg, function () {
+        it('should produce expected output', function () {
+
+            const tplFnText = compile(scenario.tpl)
+            const fn = makeTemplate(tplFnText, helpers)
+            const result = fn(scenario.data)
+
+            assert.equal(result, scenario.res);
+        });
+    });
+
+    /*
     console.log(`--- ${i} ${scenario.msg || ''} ---`)
 
     const iterations = 1
@@ -67,9 +85,5 @@ for (let i = 0; i < scenarios.length; i++) {
         console.log()
         throw err
     }
+    */
 }
-
-
-
-
-

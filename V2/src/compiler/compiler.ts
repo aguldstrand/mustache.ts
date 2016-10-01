@@ -3,6 +3,8 @@ import {enumerateTokens, Token, TokenType} from "./tokenizer"
 interface CompileContext {
     functionNameGenerator: { (): string },
     functions: { [fn: string]: string },
+    needsL: boolean,
+    needsV: boolean
 }
 
 export function compile(template: string) {
@@ -11,13 +13,22 @@ export function compile(template: string) {
     var ctx: CompileContext = {
         functionNameGenerator: nameGenerator('f'),
         functions: {},
+        needsL: false,
+        needsV: false
     }
 
     const name = makeSectionFunction(ctx, tokens)
 
-    return 'let l=(d,f)=>Array.isArray(d)?d.map(f).join(""):f(d)\n' +
-        `${Object.getOwnPropertyNames(ctx.functions).map(fn => `let ${ctx.functions[fn]}=${fn}`).join('\n')}\n` +
-        `return ${name}(d)`
+    let outp = ''
+    const propertyNames = Object.getOwnPropertyNames(ctx.functions)
+    if (propertyNames.length === 1) {
+        outp += `return ${propertyNames[0]}\n`
+    }
+    else {
+        outp += propertyNames.map(fn => `let ${ctx.functions[fn]}=(d)=>${fn}`).join('\n') + `\nreturn ${name}(d)`
+    }
+
+    return outp
 }
 
 function nameGenerator(prefix: string) {
@@ -29,12 +40,11 @@ function nameGenerator(prefix: string) {
 
 function makeSectionFunction(ctx: CompileContext, tokens: IterableIterator<Token>) {
 
-    let outp = `(d)=>\``
+    let outp = `\``
 
     let result: IteratorResult<Token>
     while (!(result = tokens.next()).done) {
         const token = result.value
-        // console.log(JSON.stringify(token))
 
         switch (token.type) {
             case TokenType.Text:
@@ -42,13 +52,14 @@ function makeSectionFunction(ctx: CompileContext, tokens: IterableIterator<Token
                 break
 
             case TokenType.Block:
-                outp += '${' + combineContext('d', token.value) + '}'
+                outp += `$\{v(d,${JSON.stringify(token.value)},${JSON.stringify(token.params)})}`
                 break
 
             case TokenType.EnterBlock:
-                let innerName = makeSectionFunction(ctx, tokens)
-                const newContext = combineContext('d', token.value)
-                outp += `$\{l(${newContext},${innerName})}`
+                {
+                    let innerName = makeSectionFunction(ctx, tokens)
+                    outp += `$\{b(d,${JSON.stringify(token.value)},${JSON.stringify(token.params)},${innerName})}`
+                }
                 break
 
             case TokenType.ExitBlock:
@@ -72,5 +83,6 @@ function combineContext(root: string, path: string) {
         return root
     }
 
+    // return JSON.stringify(path.split(/(?:\/)|(?:\.(?=[a-zA-Z0-9_]))/g))
     return root + path.split('.').map(p => `.${p.replace(/"/g, '\\"')}`).join("")
 }
