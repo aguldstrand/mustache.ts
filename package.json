@@ -2,6 +2,10 @@
   "name": "v2",
   "version": "0.0.1",
   "scripts": {
-    "test": "tsc && mocha src/test/*.js"
+    "build": "node node_modules/typescript/lib/tsc.js",
+    "test": "mocha src/test/*.js"
+  },
+  "devDependencies": {
+    "typescript": "2.0.3"
   }
 }
