@@ -10,6 +10,12 @@ export function* enumerateTokens(template: string): IterableIterator<Token> {
             item.value = match[0]
 
             switch (item.value[0]) {
+                case '&':
+                    item.value = match[0].substr(1).trim()
+                    item.type = TokenType.Block
+                    item.rawOutput = true
+                    break
+
                 case '#':
                     item.value = match[0].substr(1).trim()
                     item.type = TokenType.EnterBlock
@@ -39,7 +45,14 @@ function* enumerateTokensInner(template: string): IterableIterator<Token> {
 
     while (true) {
         var startPos = template.indexOf("{{", index)
+        var trippleStart = template.indexOf("{{{", startPos) === startPos && startPos !== -1
+
         var endPos = template.indexOf("}}", index)
+        var trippleEnd = template.indexOf("}}}", endPos) === endPos && endPos !== -1
+
+        if (trippleStart !== trippleEnd) {
+            throw "braces not matching"
+        }
 
         // Yield rest of template if no {{ is found
         if (startPos === -1) {
@@ -68,16 +81,19 @@ function* enumerateTokensInner(template: string): IterableIterator<Token> {
             throw "invalid syntax missing }}"
         }
 
-        const val3 = template.substring(startPos + 2, endPos)
+        const offset = trippleStart ? 3 : 2
+
+        const val3 = template.substring(startPos + offset, endPos)
         if (val3.length) {
             yield {
                 value: val3,
                 type: TokenType.Block,
+                rawOutput: trippleStart,
                 params: []
             }
         }
 
-        index = endPos + 2
+        index = endPos + offset
     }
 }
 
@@ -85,6 +101,7 @@ export interface Token {
     value: string
     type: TokenType
     params: string[]
+    rawOutput?: boolean
 }
 
 export enum TokenType {

@@ -47,19 +47,36 @@ export function makeTemplate(tpl: string, helpers: HelperMap) {
         return ''
     }
 
-    function value(frame: Frame, path: string, args: string[]) {
+    function value(frame: Frame, path: string, args: string[], raw = false) {
+        let outp;
 
         if (helpers[path]) {
-            return helpers[path](frame, resolveArguments(frame, args).map(p => p.value))
+            outp = encode(helpers[path](frame, resolveArguments(frame, args).map(p => p.value)))
+        } else {
+            outp = resolvePath(frame, path).value
         }
 
-        return resolvePath(frame, path).value
+        if (!raw) {
+            outp = encode(outp)
+        }
+
+        return outp
     }
 }
 
+function encode(val: any) {
+    if (typeof val !== 'string') {
+        return val
+    }
+
+    return val
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+}
+
 function resolveArguments(frame: Frame, args: string[]) {
-
-
     return args
         .map(arg => {
             if (arg.startsWith('"')) {
@@ -74,6 +91,7 @@ function resolvePath(frame: Frame, path: string): Frame {
     let f = frame
     var fragments = path.split(/(?:\/)|(?:\.(?=[a-zA-Z0-9_]))/g)
     for (let i = 0; i < fragments.length; i++) {
+
         if (fragments[i] === '.') {
             continue
         }
@@ -84,6 +102,10 @@ function resolvePath(frame: Frame, path: string): Frame {
         }
 
         f = new Frame(f.value[fragments[i]], f)
+
+        if (f.value === undefined) {
+            break;
+        }
     }
 
     if (!f.value && fragments.length === 1) {

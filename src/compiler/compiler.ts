@@ -1,4 +1,4 @@
-import {enumerateTokens, Token, TokenType} from "./tokenizer"
+import { enumerateTokens, Token, TokenType } from "./tokenizer"
 
 interface CompileContext {
     functionNameGenerator: { (): string },
@@ -52,7 +52,7 @@ function makeSectionFunction(ctx: CompileContext, tokens: IterableIterator<Token
                 break
 
             case TokenType.Block:
-                outp += `$\{v(d,${JSON.stringify(token.value)},${JSON.stringify(token.params)})}`
+                outp += `$\{v(d,${JSON.stringify(token.value)},${JSON.stringify(token.params)}${token.rawOutput ? ',true' : ''})}`
                 break
 
             case TokenType.EnterBlock:
