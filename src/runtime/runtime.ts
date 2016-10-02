@@ -1,5 +1,8 @@
 export function makeTemplate(tpl: string, helpers: HelperMap) {
 
+    helpers['if'] = (scope: Frame, args: string[]) => args[0] ? [scope] : []
+    helpers['unless'] = (scope: Frame, args: string[]) => args[0] ? [] : [scope]
+
     const factory = <{ (b: any, v: any, Frame: any): { (data: any): string } }>(new Function('b', 'v', 'Frame', `
         return function(data) {
             let d = new Frame(data, null)

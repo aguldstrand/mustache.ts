@@ -21,8 +21,6 @@ const scenarios: Scenario[] = []
 
 const helpers: HelperMap = {
     uppercase: (scope: Frame, args: string[]) => args[0].toUpperCase(),
-    if: (scope: Frame, args: string[]) => args[0] ? [scope] : [],
-    unless: (scope: Frame, args: string[]) => args[0] ? [] : [scope],
     label: (scope: Frame, args: string[]) => args[0] + '_helped',
     ellipsis: (scope: Frame, args: string[]) => args[0] + '...',
 }

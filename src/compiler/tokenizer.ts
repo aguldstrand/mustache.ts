@@ -15,6 +15,8 @@ export function* enumerateTokens(template: string): IterableIterator<Token> {
             } else if (item.value[0] === '/') {
                 item.value = item.value.substr(1)
                 item.type = TokenType.ExitBlock
+            } else if (item.value[0] === '!') {
+                continue
             }
         }
 
