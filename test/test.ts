@@ -3,9 +3,9 @@ declare const describe: any
 declare const it: any
 
 
-import {compile} from "../src/compiler/compiler"
-import {makeTemplate, HelperMap, Frame} from "../src/runtime/runtime"
-import {testCases} from "./testCases"
+import { compile } from "../src/compiler/compiler"
+import { makeTemplate, HelperMap, Frame } from "../src/runtime/runtime"
+import { testCases } from "./testCases"
 
 declare const process: any
 
@@ -27,12 +27,12 @@ const helpers: HelperMap = {
     ellipsis: (scope: Frame, args: string[]) => args[0] + '...',
 }
 
-for (let i = 0; i < scenarios.length; i++) {
-    const scenario = scenarios[i]
+describe('suite 1', function () {
+    for (let i = 0; i < scenarios.length; i++) {
+        const scenario = scenarios[i]
 
-    var assert = require('assert');
-    describe(i + ' ' + scenario.msg, function () {
-        it('should produce expected output', function () {
+        var assert = require('assert');
+        it(`${i} - ${scenario.msg}`, function () {
 
             const tplFnText = compile(scenario.tpl)
             const fn = makeTemplate(tplFnText, helpers)
@@ -40,50 +40,5 @@ for (let i = 0; i < scenarios.length; i++) {
 
             assert.equal(result, scenario.res);
         });
-    });
-
-    /*
-    console.log(`--- ${i} ${scenario.msg || ''} ---`)
-
-    const iterations = 1
-    let start = process.hrtime()
-    for (let j = 0; j < iterations; j++) {
-        makeTemplate(compile(scenario.tpl), helpers)
     }
-    let elapsed = process.hrtime(start)
-    ////// console.log(`average compile time: ${Math.floor((elapsed[0] * 1e9 + elapsed[1]) / iterations / 1e3)}µs`)
-
-    const tplFnText = compile(scenario.tpl)
-    const fn = makeTemplate(tplFnText, helpers)
-    try {
-        const result = fn(scenario.data)
-
-        start = process.hrtime()
-        for (let j = 0; j < iterations; j++) {
-            fn(scenario.data)
-        }
-        elapsed = process.hrtime(start)
-        ///// console.log(`average execution time: ${((elapsed[0] * 1e9 + elapsed[1]) / iterations / 1e3)}µs`)
-
-        ///// console.log(`compiled/template length: ${(tplFnText.length / scenario.tpl.length)}`)
-
-        if (result !== scenario.res) {
-            console.log('----------------------------------------------')
-            console.log('invalid template output     <--------')
-            console.log(scenario.tpl)
-            console.log()
-            console.log('actual', result)
-            console.log('expect', scenario.res)
-            console.log()
-            console.log(tplFnText)
-        }
-
-        console.log()
-    } catch (err) {
-
-        console.log(tplFnText)
-        console.log()
-        throw err
-    }
-    */
-}
+});
