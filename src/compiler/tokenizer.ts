@@ -9,14 +9,24 @@ export function* enumerateTokens(template: string): IterableIterator<Token> {
             }
             item.value = match[0]
 
-            if (item.value[0] === '#') {
-                item.value = match[0].substr(1).trim()
-                item.type = TokenType.EnterBlock
-            } else if (item.value[0] === '/') {
-                item.value = item.value.substr(1)
-                item.type = TokenType.ExitBlock
-            } else if (item.value[0] === '!') {
-                continue
+            switch (item.value[0]) {
+                case '#':
+                    item.value = match[0].substr(1).trim()
+                    item.type = TokenType.EnterBlock
+                    break
+
+                case '^':
+                    item.value = match[0].substr(1).trim()
+                    item.type = TokenType.EnterBlockInverted
+                    break
+
+                case '/':
+                    item.value = item.value.substr(1)
+                    item.type = TokenType.ExitBlock
+                    break
+
+                case '!':
+                    continue
             }
         }
 
@@ -78,5 +88,9 @@ export interface Token {
 }
 
 export enum TokenType {
-    Block, Text, EnterBlock, ExitBlock
+    Block,
+    Text,
+    EnterBlock,
+    EnterBlockInverted,
+    ExitBlock
 }

@@ -3,14 +3,14 @@ export function makeTemplate(tpl: string, helpers: HelperMap) {
     helpers['if'] = (scope: Frame, args: string[]) => args[0] ? [scope] : []
     helpers['unless'] = (scope: Frame, args: string[]) => args[0] ? [] : [scope]
 
-    const factory = <{ (b: any, v: any, Frame: any): { (data: any): string } }>(new Function('b', 'v', 'Frame', `
+    const factory = <{ (b: any, i: any, v: any, Frame: any): { (data: any): string } }>(new Function('b', 'i', 'v', 'Frame', `
         return function(data) {
             let d = new Frame(data, null)
             ${tpl}
         }
     `))
 
-    return factory(block, value, Frame);
+    return factory(block, blockInverted, value, Frame);
 
     function block(frame: Frame, path: string, args: string[], tplFn: TemplateFunction) {
 
@@ -34,6 +34,17 @@ export function makeTemplate(tpl: string, helpers: HelperMap) {
         }
 
         return tplFn(frame)
+    }
+
+    function blockInverted(frame: Frame, path: string, args: string[], tplFn: TemplateFunction) {
+
+        frame = resolvePath(frame, path)
+
+        if (!frame.value || (Array.isArray(frame.value) && frame.value.length === 0)) {
+            return tplFn(frame)
+        }
+
+        return ''
     }
 
     function value(frame: Frame, path: string, args: string[]) {
