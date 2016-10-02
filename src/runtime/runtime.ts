@@ -60,7 +60,7 @@ export function makeTemplate(tpl: string, helpers: HelperMap) {
             outp = encode(outp)
         }
 
-        if(typeof outp === 'undefined'){
+        if (typeof outp === 'undefined') {
             outp = ''
         }
 
