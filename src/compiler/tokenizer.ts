@@ -59,59 +59,97 @@ export function* enumerateTokens(template: string): IterableIterator<Token> {
 }
 
 function* enumerateTokensInner(template: string): IterableIterator<Token> {
-    let index = 0
 
-    while (true) {
-        var startPos = template.indexOf("{{", index)
-        var trippleStart = template.indexOf("{{{", startPos) === startPos && startPos !== -1
+    // split into lines
+    const lines = template.split('\n')
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i]
 
-        var endPos = template.indexOf("}}", index)
-        var trippleEnd = template.indexOf("}}}", endPos) === endPos && endPos !== -1
+        // buffer all tokens from each line
+        let tokens: Token[] = []
 
-        if (trippleStart !== trippleEnd) {
-            throw "braces not matching"
-        }
+        let index = 0
+        while (true) {
+            var startPos = line.indexOf("{{", index)
+            var trippleStart = line.indexOf("{{{", startPos) === startPos && startPos !== -1
 
-        // Yield rest of template if no {{ is found
-        if (startPos === -1) {
-            const val1 = template.substring(index)
-            if (val1.length) {
-                yield {
-                    value: val1,
+            var endPos = line.indexOf("}}", index)
+            var trippleEnd = line.indexOf("}}}", endPos) === endPos && endPos !== -1
+
+            if (trippleStart !== trippleEnd) {
+                throw "braces not matching"
+            }
+
+            // Yield rest of template if no {{ is found
+            if (startPos === -1) {
+                const val1 = line.substring(index)
+                if (val1.length) {
+                    tokens.push({
+                        value: val1,
+                        type: TokenType.Text,
+                        params: []
+                    })
+                }
+                break
+            }
+
+            // Yield text block before block
+            const val2 = line.substring(index, startPos)
+            if (val2.length) {
+                tokens.push({
+                    value: val2,
                     type: TokenType.Text,
                     params: []
-                }
+                })
             }
-            break
+
+            if (endPos === -1) {
+                throw "invalid syntax missing }}"
+            }
+
+            const offset = trippleStart ? 3 : 2
+
+            const val3 = line.substring(startPos + offset, endPos)
+            if (val3.length) {
+                tokens.push({
+                    value: val3,
+                    type: TokenType.Block,
+                    rawOutput: trippleStart,
+                    params: []
+                })
+            }
+
+            index = endPos + offset
         }
 
-        // Yield text block before block
-        const val2 = template.substring(index, startPos)
-        if (val2.length) {
+        // check if it is a standalone line (single block token with only whitespace text tokens)
+        let blockCount = 0
+        let whitespaceOnly = true
+        tokens.forEach(token => {
+            switch (token.type) {
+                case TokenType.Text:
+                    whitespaceOnly = whitespaceOnly && !!/^[ \t]*$/.exec(token.value)
+                    break;
+
+                case TokenType.Block:
+                    blockCount++
+                    break;
+            }
+        })
+
+        // if so, remove all text token including the trailing linebreak
+        if (whitespaceOnly && blockCount === 1) {
+            tokens = tokens.filter(t => t.type === TokenType.Block)
+        }
+
+        yield* tokens
+        if (i !== lines.length - 1 && !(whitespaceOnly && blockCount === 1)) {
             yield {
-                value: val2,
+                value: '\n',
                 type: TokenType.Text,
                 params: []
             }
         }
-
-        if (endPos === -1) {
-            throw "invalid syntax missing }}"
-        }
-
-        const offset = trippleStart ? 3 : 2
-
-        const val3 = template.substring(startPos + offset, endPos)
-        if (val3.length) {
-            yield {
-                value: val3,
-                type: TokenType.Block,
-                rawOutput: trippleStart,
-                params: []
-            }
-        }
-
-        index = endPos + offset
     }
 }
 
