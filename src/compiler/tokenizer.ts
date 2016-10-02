@@ -3,27 +3,36 @@ export function* enumerateTokens(template: string): IterableIterator<Token> {
     for (let item of enumerateTokensInner(template)) {
         if (item.type === TokenType.Block) {
             item.value = item.value.trim()
-            var match = item.value.split(' ')
-            for (var i = 1; i < match.length; i++) {
-                item.params.push(match[i].trim())
-            }
-            item.value = match[0]
 
             switch (item.value[0]) {
-                case '&':
-                    item.value = match[0].substr(1).trim()
+                case '&': {
+                    const pieces = item.value.substr(1).trim().split(/(?:[ ]+)/g)
+                    item.value = pieces[0]
                     item.type = TokenType.Block
                     item.rawOutput = true
-                    break
 
-                case '#':
-                    item.value = match[0].substr(1).trim()
-                    item.type = TokenType.EnterBlock
+                    pieces.shift()
+                    item.params = pieces
                     break
+                }
+
+                case '#': {
+                    const pieces = item.value.substr(1).trim().split(/(?:[ ]+)/g)
+                    item.value = pieces[0]
+                    item.type = TokenType.EnterBlock
+
+                    pieces.shift()
+                    item.params = pieces
+                    break
+                }
 
                 case '^':
-                    item.value = match[0].substr(1).trim()
+                    const pieces = item.value.substr(1).trim().split(/(?:[ ]+)/g)
+                    item.value = pieces[0]
                     item.type = TokenType.EnterBlockInverted
+
+                    pieces.shift()
+                    item.params = pieces
                     break
 
                 case '/':
@@ -33,6 +42,15 @@ export function* enumerateTokens(template: string): IterableIterator<Token> {
 
                 case '!':
                     continue
+
+                default: {
+                    const pieces = item.value.trim().split(/(?:[ ]+)/g)
+                    item.value = pieces[0]
+
+                    pieces.shift()
+                    item.params = pieces
+                    break
+                }
             }
         }
 
