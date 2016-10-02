@@ -1,12 +1,10 @@
 {
   "name": "v2",
   "version": "0.0.1",
-  "scripts": {
-    "build": "./node_modules/typescript/bin/tsc",
-    "test": "./node_modules/mocha/bin/mocha"
-  },
   "devDependencies": {
-    "typescript": "2.0.3",
-    "mocha": "3.1.0"
+    "gulp-mocha": "3.0.1",
+    "gulp-typescript": "3.0.2",
+    "gulp": "3.9.1",
+    "typescript": "2.0.3"
   }
 }
