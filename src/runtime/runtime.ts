@@ -12,7 +12,7 @@ export function makePartial(tpl: string, helpers: HelperMap) {
     helpers['unless'] = (scope: Frame, args: string[]) => args[0] ? [] : [scope]
 
     const factory = <{ (b: any, i: any, v: any, Frame: any): { (data: any): string } }>(new Function('b', 'i', 'v', 'Frame', `
-        return function(frame) {
+        return function(d) {
             ${tpl}
         }
     `))
