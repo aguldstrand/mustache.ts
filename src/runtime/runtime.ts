@@ -1,11 +1,18 @@
 export function makeTemplate(tpl: string, helpers: HelperMap) {
+    const fn = makePartial(tpl, helpers)
+    return data => {
+        const d = new Frame(data, null)
+        return fn(d)
+    }
+}
+
+export function makePartial(tpl: string, helpers: HelperMap) {
 
     helpers['if'] = (scope: Frame, args: string[]) => args[0] ? [scope] : []
     helpers['unless'] = (scope: Frame, args: string[]) => args[0] ? [] : [scope]
 
     const factory = <{ (b: any, i: any, v: any, Frame: any): { (data: any): string } }>(new Function('b', 'i', 'v', 'Frame', `
-        return function(data) {
-            let d = new Frame(data, null)
+        return function(frame) {
             ${tpl}
         }
     `))

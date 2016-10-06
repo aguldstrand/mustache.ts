@@ -3,6 +3,7 @@ var compiler_1 = require("./compiler/compiler");
 exports.compile = compiler_1.compile;
 var runtime_1 = require("./runtime/runtime");
 exports.makeTemplate = runtime_1.makeTemplate;
+exports.makePartial = runtime_1.makePartial;
 exports.Frame = runtime_1.Frame;
 // import {testCases} from "../test/testCases"
 /*

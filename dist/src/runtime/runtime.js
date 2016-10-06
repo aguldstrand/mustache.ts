@@ -1,10 +1,17 @@
 "use strict";
 function makeTemplate(tpl, helpers) {
+    const fn = makePartial(tpl, helpers);
+    return data => {
+        const d = new Frame(data, null);
+        return fn(d);
+    };
+}
+exports.makeTemplate = makeTemplate;
+function makePartial(tpl, helpers) {
     helpers['if'] = (scope, args) => args[0] ? [scope] : [];
     helpers['unless'] = (scope, args) => args[0] ? [] : [scope];
     const factory = (new Function('b', 'i', 'v', 'Frame', `
-        return function(data) {
-            let d = new Frame(data, null)
+        return function(frame) {
             ${tpl}
         }
     `));
@@ -51,7 +58,7 @@ function makeTemplate(tpl, helpers) {
         return outp;
     }
 }
-exports.makeTemplate = makeTemplate;
+exports.makePartial = makePartial;
 function encode(val) {
     if (typeof val !== 'string') {
         return val;

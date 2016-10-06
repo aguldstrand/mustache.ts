@@ -1,5 +1,5 @@
 export { compile } from "./compiler/compiler"
-export { makeTemplate, HelperMap, Frame } from "./runtime/runtime"
+export { makeTemplate, makePartial, HelperMap, Frame } from "./runtime/runtime"
 
 
 // import {testCases} from "../test/testCases"
