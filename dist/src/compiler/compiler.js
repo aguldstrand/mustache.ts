@@ -36,10 +36,10 @@ function makeSectionFunction(ctx, tokens) {
                 outp += token.value.replace(/`/g, "\\`");
                 break;
             case tokenizer_1.TokenType.Block:
-                outp += `$\{p(d,${JSON.stringify(token.value)},${JSON.stringify(token.params)}${token.rawOutput ? ',true' : ''})}`;
+                outp += `$\{v(d,${JSON.stringify(token.value)},${JSON.stringify(token.params)}${token.rawOutput ? ',true' : ''})}`;
                 break;
             case tokenizer_1.TokenType.Partial:
-                outp += `$\{v(d,${JSON.stringify(token.value)},${JSON.stringify(token.params)}${token.rawOutput ? ',true' : ''})}`;
+                outp += `$\{p(d,${JSON.stringify(token.value)},${JSON.stringify(token.params)}${token.rawOutput ? ',true' : ''})}`;
                 break;
             case tokenizer_1.TokenType.EnterBlock:
                 {
