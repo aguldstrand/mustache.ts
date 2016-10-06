@@ -1,7 +1,10 @@
-import {compile} from "./compiler/compiler"
-import {makeTemplate, HelperMap, Frame} from "./runtime/runtime"
-import {testCases} from "../test/testCases"
+export { compile } from "./compiler/compiler"
+export { makeTemplate, HelperMap, Frame } from "./runtime/runtime"
 
+
+// import {testCases} from "../test/testCases"
+
+/*
 declare const process: any
 
 interface Scenario {
@@ -68,8 +71,4 @@ for (let i = 0; i < scenarios.length; i++) {
         throw err
     }
 }
-
-
-
-
-
+*/
