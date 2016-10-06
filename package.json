@@ -1,6 +1,7 @@
 {
   "name": "v2",
   "version": "0.0.1",
+  "main": "dist/src/main.js",
   "devDependencies": {
     "gulp-mocha": "3.0.1",
     "gulp-typescript": "3.0.2",

@@ -10,7 +10,7 @@ gulp.task('build', function () {
     .src()
     .pipe(tsProject());
 
-  return tsResult.js.pipe(gulp.dest('.'));
+  return tsResult.js.pipe(gulp.dest('dist'));
 });
 
 gulp.task('test', ['build'], function () {
