@@ -14,7 +14,7 @@ describe('handlebars spec', function () {
                     var assert = require('assert');
                     it(test.name, function () {
                         const tplFnText = compiler_1.compile(test.template);
-                        const fn = runtime_1.makeTemplate(tplFnText, {});
+                        const fn = runtime_1.makeTemplate(tplFnText, {}, {});
                         const result = fn(test.data);
                         assert.equal(result, test.expected);
                     });

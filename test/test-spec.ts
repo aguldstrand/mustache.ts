@@ -23,7 +23,7 @@ describe('handlebars spec', function () {
                     it(test.name, function () {
 
                         const tplFnText = compile(test.template)
-                        const fn = makeTemplate(tplFnText, {})
+                        const fn = makeTemplate(tplFnText, {}, {})
                         const result = fn(test.data)
 
                         assert.equal(result, test.expected);

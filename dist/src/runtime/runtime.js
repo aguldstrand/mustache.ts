@@ -1,13 +1,13 @@
 "use strict";
-function makeTemplate(tpl, helpers) {
-    const fn = makePartial(tpl, helpers);
+function makeTemplate(tpl, helpers, partials) {
+    const fn = makePartial(tpl, helpers, partials);
     return data => {
         const d = new Frame(data, null);
         return fn(d);
     };
 }
 exports.makeTemplate = makeTemplate;
-function makePartial(tpl, helpers) {
+function makePartial(tpl, helpers, partials) {
     helpers['if'] = (scope, args) => args[0] ? [scope] : [];
     helpers['unless'] = (scope, args) => args[0] ? [] : [scope];
     const factory = (new Function('b', 'i', 'v', 'p', 'Frame', `
@@ -16,13 +16,10 @@ function makePartial(tpl, helpers) {
         }
     `));
     return factory(block, blockInverted, value, partial, Frame);
-    function partial(frame, path, args, tplFn) {
-        const helperName = resolveArguments(frame, [path])[0].value;
-        if (helpers[helperName]) {
-            let frames = helpers[helperName](frame, resolveArguments(frame, args).map(p => p.value));
-            return frames
-                .map(frame => tplFn(frame))
-                .join('');
+    function partial(frame, path) {
+        const name = resolveArguments(frame, [path])[0].value;
+        if (partials[name]) {
+            return partials[name](frame);
         }
         return '';
     }

@@ -1,12 +1,12 @@
-export function makeTemplate(tpl: string, helpers: HelperMap) {
-    const fn = makePartial(tpl, helpers)
+export function makeTemplate(tpl: string, helpers: HelperMap, partials: PartialMap) {
+    const fn = makePartial(tpl, helpers, partials)
     return data => {
         const d = new Frame(data, null)
         return fn(d)
     }
 }
 
-export function makePartial(tpl: string, helpers: HelperMap) {
+export function makePartial(tpl: string, helpers: HelperMap, partials: PartialMap) {
 
     helpers['if'] = (scope: Frame, args: string[]) => args[0] ? [scope] : []
     helpers['unless'] = (scope: Frame, args: string[]) => args[0] ? [] : [scope]
@@ -19,15 +19,12 @@ export function makePartial(tpl: string, helpers: HelperMap) {
 
     return factory(block, blockInverted, value, partial, Frame);
 
-    function partial(frame: Frame, path: string, args: string[], tplFn: TemplateFunction) {
+    function partial(frame: Frame, path: string) {
 
-        const helperName: string = resolveArguments(frame, [path])[0].value
+        const name: string = resolveArguments(frame, [path])[0].value
 
-        if (helpers[helperName]) {
-            let frames = <Frame[]>helpers[helperName](frame, resolveArguments(frame, args).map(p => p.value))
-            return frames
-                .map(frame => tplFn(frame))
-                .join('')
+        if (partials[name]) {
+            return partials[name](frame)
         }
 
         return ''
@@ -159,4 +156,8 @@ export interface Helper {
 
 export interface HelperMap {
     [name: string]: Helper
+}
+
+export interface PartialMap {
+    [name: string]: TemplateFunction
 }
