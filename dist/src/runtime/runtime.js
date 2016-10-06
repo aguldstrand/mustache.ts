@@ -10,12 +10,22 @@ exports.makeTemplate = makeTemplate;
 function makePartial(tpl, helpers) {
     helpers['if'] = (scope, args) => args[0] ? [scope] : [];
     helpers['unless'] = (scope, args) => args[0] ? [] : [scope];
-    const factory = (new Function('b', 'i', 'v', 'Frame', `
+    const factory = (new Function('b', 'i', 'v', 'p', 'Frame', `
         return function(d) {
             ${tpl}
         }
     `));
-    return factory(block, blockInverted, value, Frame);
+    return factory(block, blockInverted, value, partial, Frame);
+    function partial(frame, path, args, tplFn) {
+        const helperName = resolveArguments(frame, [path])[0].value;
+        if (helpers[helperName]) {
+            let frames = helpers[helperName](frame, resolveArguments(frame, args).map(p => p.value));
+            return frames
+                .map(frame => tplFn(frame))
+                .join('');
+        }
+        return '';
+    }
     function block(frame, path, args, tplFn) {
         if (helpers[path]) {
             let frames = helpers[path](frame, resolveArguments(frame, args).map(p => p.value));
@@ -73,7 +83,7 @@ function resolveArguments(frame, args) {
     return args
         .map(arg => {
         if (arg.startsWith('"')) {
-            return new Frame(arg.substr(1, arg.length - 2), null);
+            return new Frame(JSON.parse(arg), null);
         }
         return resolvePath(frame, arg);
     });

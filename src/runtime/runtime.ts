@@ -11,13 +11,27 @@ export function makePartial(tpl: string, helpers: HelperMap) {
     helpers['if'] = (scope: Frame, args: string[]) => args[0] ? [scope] : []
     helpers['unless'] = (scope: Frame, args: string[]) => args[0] ? [] : [scope]
 
-    const factory = <{ (b: any, i: any, v: any, Frame: any): { (data: any): string } }>(new Function('b', 'i', 'v', 'Frame', `
+    const factory = <{ (b: any, i: any, v: any, p: any, Frame: any): { (data: any): string } }>(new Function('b', 'i', 'v', 'p', 'Frame', `
         return function(d) {
             ${tpl}
         }
     `))
 
-    return factory(block, blockInverted, value, Frame);
+    return factory(block, blockInverted, value, partial, Frame);
+
+    function partial(frame: Frame, path: string, args: string[], tplFn: TemplateFunction) {
+
+        const helperName: string = resolveArguments(frame, [path])[0].value
+
+        if (helpers[helperName]) {
+            let frames = <Frame[]>helpers[helperName](frame, resolveArguments(frame, args).map(p => p.value))
+            return frames
+                .map(frame => tplFn(frame))
+                .join('')
+        }
+
+        return ''
+    }
 
     function block(frame: Frame, path: string, args: string[], tplFn: TemplateFunction) {
 
@@ -91,7 +105,7 @@ function resolveArguments(frame: Frame, args: string[]) {
     return args
         .map(arg => {
             if (arg.startsWith('"')) {
-                return new Frame(arg.substr(1, arg.length - 2), null)
+                return new Frame(JSON.parse(arg), null)
             }
 
             return resolvePath(frame, arg)

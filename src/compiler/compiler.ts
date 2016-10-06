@@ -52,6 +52,9 @@ function makeSectionFunction(ctx: CompileContext, tokens: IterableIterator<Token
                 break
 
             case TokenType.Block:
+                outp += `$\{p(d,${JSON.stringify(token.value)},${JSON.stringify(token.params)}${token.rawOutput ? ',true' : ''})}`
+                break
+
             case TokenType.Partial:
                 outp += `$\{v(d,${JSON.stringify(token.value)},${JSON.stringify(token.params)}${token.rawOutput ? ',true' : ''})}`
                 break
