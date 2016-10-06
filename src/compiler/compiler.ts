@@ -52,19 +52,20 @@ function makeSectionFunction(ctx: CompileContext, tokens: IterableIterator<Token
                 break
 
             case TokenType.Block:
+            case TokenType.Partial:
                 outp += `$\{v(d,${JSON.stringify(token.value)},${JSON.stringify(token.params)}${token.rawOutput ? ',true' : ''})}`
                 break
 
             case TokenType.EnterBlock:
                 {
-                    let innerName = makeSectionFunction(ctx, tokens)
+                    const innerName = makeSectionFunction(ctx, tokens)
                     outp += `$\{b(d,${JSON.stringify(token.value)},${JSON.stringify(token.params)},${innerName})}`
                 }
                 break
 
             case TokenType.EnterBlockInverted:
                 {
-                    let innerName = makeSectionFunction(ctx, tokens)
+                    const innerName = makeSectionFunction(ctx, tokens)
                     outp += `$\{i(d,${JSON.stringify(token.value)},${JSON.stringify(token.params)},${innerName})}`
                 }
                 break

@@ -33,6 +33,10 @@ function* enumerateTokens(template) {
                     item.value = item.value.substr(1);
                     item.type = TokenType.ExitBlock;
                     break;
+                case '>':
+                    item.value = item.value.substr(1);
+                    item.type = TokenType.Partial;
+                    break;
                 case '!':
                     continue;
                 default: {
@@ -133,5 +137,6 @@ function* enumerateTokensInner(template) {
     TokenType[TokenType["EnterBlock"] = 2] = "EnterBlock";
     TokenType[TokenType["EnterBlockInverted"] = 3] = "EnterBlockInverted";
     TokenType[TokenType["ExitBlock"] = 4] = "ExitBlock";
+    TokenType[TokenType["Partial"] = 5] = "Partial";
 })(exports.TokenType || (exports.TokenType = {}));
 var TokenType = exports.TokenType;

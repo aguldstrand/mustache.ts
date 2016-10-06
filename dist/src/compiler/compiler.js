@@ -36,17 +36,18 @@ function makeSectionFunction(ctx, tokens) {
                 outp += token.value.replace(/`/g, "\\`");
                 break;
             case tokenizer_1.TokenType.Block:
+            case tokenizer_1.TokenType.Partial:
                 outp += `$\{v(d,${JSON.stringify(token.value)},${JSON.stringify(token.params)}${token.rawOutput ? ',true' : ''})}`;
                 break;
             case tokenizer_1.TokenType.EnterBlock:
                 {
-                    let innerName = makeSectionFunction(ctx, tokens);
+                    const innerName = makeSectionFunction(ctx, tokens);
                     outp += `$\{b(d,${JSON.stringify(token.value)},${JSON.stringify(token.params)},${innerName})}`;
                 }
                 break;
             case tokenizer_1.TokenType.EnterBlockInverted:
                 {
-                    let innerName = makeSectionFunction(ctx, tokens);
+                    const innerName = makeSectionFunction(ctx, tokens);
                     outp += `$\{i(d,${JSON.stringify(token.value)},${JSON.stringify(token.params)},${innerName})}`;
                 }
                 break;

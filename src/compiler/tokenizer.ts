@@ -40,6 +40,11 @@ export function* enumerateTokens(template: string): IterableIterator<Token> {
                     item.type = TokenType.ExitBlock
                     break
 
+                case '>':
+                    item.value = item.value.substr(1)
+                    item.type = TokenType.Partial
+                    break
+
                 case '!':
                     continue
 
@@ -165,5 +170,6 @@ export enum TokenType {
     Text,
     EnterBlock,
     EnterBlockInverted,
-    ExitBlock
+    ExitBlock,
+    Partial
 }
