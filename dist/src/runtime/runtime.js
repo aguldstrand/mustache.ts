@@ -11,7 +11,7 @@ function makePartial(tpl, helpers) {
     helpers['if'] = (scope, args) => args[0] ? [scope] : [];
     helpers['unless'] = (scope, args) => args[0] ? [] : [scope];
     const factory = (new Function('b', 'i', 'v', 'Frame', `
-        return function(frame) {
+        return function(d) {
             ${tpl}
         }
     `));
@@ -80,7 +80,7 @@ function resolveArguments(frame, args) {
 }
 function resolvePath(frame, path) {
     let f = frame;
-    var fragments = path.split(/(?:\/)|(?:\.(?=[a-zA-Z0-9_]))/g);
+    let fragments = path.split(/(?:\/)|(?:\.(?=[a-zA-Z0-9_]))/g);
     for (let i = 0; i < fragments.length; i++) {
         if (fragments[i] === '.') {
             continue;

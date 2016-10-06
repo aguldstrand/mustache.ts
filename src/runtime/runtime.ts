@@ -100,7 +100,7 @@ function resolveArguments(frame: Frame, args: string[]) {
 
 function resolvePath(frame: Frame, path: string): Frame {
     let f = frame
-    var fragments = path.split(/(?:\/)|(?:\.(?=[a-zA-Z0-9_]))/g)
+    let fragments = path.split(/(?:\/)|(?:\.(?=[a-zA-Z0-9_]))/g)
     for (let i = 0; i < fragments.length; i++) {
 
         if (fragments[i] === '.') {
