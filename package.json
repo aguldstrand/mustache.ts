@@ -1,5 +1,5 @@
 {
-  "name": "v2",
+  "name": "mustache.ts",
   "version": "0.0.1",
   "main": "dist/src/main.js",
   "devDependencies": {
